@@ -3,7 +3,7 @@
 // src/store/NFTProvider.tsx
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { useWallet } from './WalletProvider';
+import { useWalletContext } from './WalletProvider';
 import { NFTAttributes } from '../types/nft';
 import { GAME_PACKAGE_ID, GAME_MODULE } from '../lib/sui/constants';
 import { SUI_PACKAGE_ID } from '../lib/sui/constants';
@@ -36,7 +36,7 @@ interface NFTProviderProps {
 }
 
 export const NFTProvider: React.FC<NFTProviderProps> = ({ children }) => {
-  const { connected, address, executeTransaction } = useWallet();
+  const { connected, address, executeTransaction } = useWalletContext();
   const [userNFTs, setUserNFTs] = useState<NFTAttributes[]>([]);
   const [allNFTs, setAllNFTs] = useState<NFTAttributes[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -48,11 +48,13 @@ export const NFTProvider: React.FC<NFTProviderProps> = ({ children }) => {
       id: '0x1234',
       name: 'Doge Warrior',
       owner: address || '0x5678',
-      strength: 75,
-      speed: 60,
-      luck: 45,
-      experience: 120,
-      level: 3,
+      attributes: {
+        strength: 75,
+        speed: 60,
+        luck: 45,
+        experience: 120,
+        level: 3
+      },
       imageUrl: 'https://placehold.co/400x400?text=Doge+Warrior',
       rarity: 'rare'
     },
@@ -60,11 +62,13 @@ export const NFTProvider: React.FC<NFTProviderProps> = ({ children }) => {
       id: '0x2345',
       name: 'Grumpy Cat',
       owner: address || '0x5678',
-      strength: 65,
-      speed: 55,
-      luck: 80,
-      experience: 200,
-      level: 4,
+      attributes: {
+        strength: 65,
+        speed: 55,
+        luck: 80,
+        experience: 200,
+        level: 4
+      },
       imageUrl: 'https://placehold.co/400x400?text=Grumpy+Cat',
       rarity: 'epic'
     },
@@ -72,11 +76,13 @@ export const NFTProvider: React.FC<NFTProviderProps> = ({ children }) => {
       id: '0x3456',
       name: 'Nyan Unicorn',
       owner: '0x9abc',
-      strength: 90,
-      speed: 95,
-      luck: 75,
-      experience: 350,
-      level: 6,
+      attributes: {
+        strength: 90,
+        speed: 95,
+        luck: 75,
+        experience: 350,
+        level: 6
+      },
       imageUrl: 'https://placehold.co/400x400?text=Nyan+Unicorn',
       rarity: 'legendary'
     },
@@ -84,11 +90,13 @@ export const NFTProvider: React.FC<NFTProviderProps> = ({ children }) => {
       id: '0x4567',
       name: 'Pepe Frog',
       owner: '0xdef0',
-      strength: 60,
-      speed: 65,
-      luck: 70,
-      experience: 150,
-      level: 3,
+      attributes: {
+        strength: 60,
+        speed: 65,
+        luck: 70,
+        experience: 150,
+        level: 3
+      },
       imageUrl: 'https://placehold.co/400x400?text=Pepe+Frog',
       rarity: 'rare'
     }

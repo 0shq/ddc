@@ -4,7 +4,7 @@
 
 import React, { createContext, useContext, useState, ReactNode } from 'react';
 import { NFTAttributes } from '../types/nft';
-import { useWallet } from './WalletProvider';
+import { useWalletContext } from './WalletProvider';
 import { useNFTs } from './NFTProvider';
 import { TransactionBlock } from '@mysten/sui.js/transactions';
 import { GAME_PACKAGE_ID, GAME_MODULE } from '../lib/sui/constants';
@@ -37,11 +37,13 @@ const GameContext = createContext<GameContextType>({
       id: 'default',
       name: 'Default Winner',
       owner: '0x000',
-      strength: 0,
-      speed: 0,
-      luck: 0,
-      experience: 0,
-      level: 1,
+      attributes: {
+        strength: 0,
+        speed: 0,
+        luck: 0,
+        experience: 0,
+        level: 1
+      },
       imageUrl: '/images/nfts/default.png',
       rarity: 'common'
     },
@@ -61,7 +63,7 @@ interface GameProviderProps {
 }
 
 export const GameProvider: React.FC<GameProviderProps> = ({ children }) => {
-  const { connected, address, executeTransaction } = useWallet();
+  const { connected, address, executeTransaction } = useWalletContext();
   const { selectedNFT, allNFTs } = useNFTs();
   
   const [battleInProgress, setBattleInProgress] = useState(false);

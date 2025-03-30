@@ -3,12 +3,12 @@
 'use client';
 
 import React, { useState } from 'react';
-import { useWallet } from '../../store/WalletProvider';
+import { useWalletContext } from '../../store/WalletProvider';
 import { useNFTs } from '../../store/NFTProvider';
 import NFTCard from '../../components/nft/NFTCard';
 
 export default function MintPage() {
-  const { connected } = useWallet();
+  const { connected } = useWalletContext();
   const { mintNFT, isLoading } = useNFTs();
   const [formData, setFormData] = useState({
     name: '',
@@ -110,11 +110,13 @@ export default function MintPage() {
                 id: 'preview',
                 name: formData.name,
                 owner: 'preview',
-                strength: 50,
-                speed: 50,
-                luck: 50,
-                experience: 0,
-                level: 1,
+                attributes: {
+                  strength: 50,
+                  speed: 50,
+                  luck: 50,
+                  experience: 0,
+                  level: 1
+                },
                 imageUrl: formData.imageUrl || 'https://placehold.co/400x400?text=Preview',
                 rarity: ['common', 'rare', 'epic', 'legendary'][formData.rarity - 1] as any
               }}

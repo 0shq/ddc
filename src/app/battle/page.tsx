@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import BattleArena from '../../components/battle/BattleArena';
 import BattleHistory from '../../components/battle/BattleHistory';
-import { useWallet } from '../../store/WalletProvider';
+import { useWalletContext } from '../../store/WalletProvider';
 import { useNFTs } from '../../store/NFTProvider';
 import { useGame } from '../../store/GameProvider';
 import { NFTAttributes } from '../../types/nft';
@@ -16,7 +16,7 @@ interface Opponent {
 }
 
 export default function BattlePage() {
-  const { connected } = useWallet();
+  const { connected } = useWalletContext();
   const { userNFTs: ownedNFTs, isLoading: nftsLoading } = useNFTs();
   const { battleHistory, initiateBattle, battleInProgress } = useGame();
   const [selectedNFT, setSelectedNFT] = useState<NFTAttributes | null>(null);
@@ -41,15 +41,15 @@ export default function BattlePage() {
             id: '1',
             name: 'Super Doge',
             owner: '0x123',
-            strength: 85,
-            speed: 70,
-            luck: 65,
-            experience: 100,
-            level: 3,
+            attributes: {
+              strength: 85,
+              speed: 70,
+              luck: 65,
+              experience: 100,
+              level: 3
+            },
             imageUrl: '/images/nfts/doge1.png',
-            rarity: 'rare',
-            image: '/images/nfts/doge1.png',
-            attributes: { strength: 85, speed: 70, luck: 65 }
+            rarity: 'rare'
           }
         },
         {
@@ -59,15 +59,15 @@ export default function BattlePage() {
             id: '2',
             name: 'Grumpy Cat',
             owner: '0x456',
-            strength: 75,
-            speed: 90,
-            luck: 60,
-            experience: 150,
-            level: 4,
+            attributes: {
+              strength: 75,
+              speed: 90,
+              luck: 60,
+              experience: 150,
+              level: 4
+            },
             imageUrl: '/images/nfts/cat1.png',
-            rarity: 'epic',
-            image: '/images/nfts/cat1.png',
-            attributes: { strength: 75, speed: 90, luck: 60 }
+            rarity: 'epic'
           }
         },
         {
@@ -77,15 +77,15 @@ export default function BattlePage() {
             id: '3',
             name: 'Nyan Shark',
             owner: '0x789',
-            strength: 90,
-            speed: 60,
-            luck: 75,
-            experience: 200,
-            level: 5,
+            attributes: {
+              strength: 90,
+              speed: 60,
+              luck: 75,
+              experience: 200,
+              level: 4
+            },
             imageUrl: '/images/nfts/shark1.png',
-            rarity: 'legendary',
-            image: '/images/nfts/shark1.png',
-            attributes: { strength: 90, speed: 60, luck: 75 }
+            rarity: 'legendary'
           }
         }
       ];
@@ -181,9 +181,9 @@ export default function BattlePage() {
                     <img src={nft.imageUrl} alt={nft.name} className="w-full h-40 object-cover rounded-md mb-2" />
                     <h3 className="font-bold">{nft.name}</h3>
                     <div className="text-sm text-gray-300 mt-2">
-                      <p>Strength: {nft.strength}</p>
-                      <p>Speed: {nft.speed}</p>
-                      <p>Luck: {nft.luck}</p>
+                      <p>Strength: {nft.attributes.strength}</p>
+                      <p>Speed: {nft.attributes.speed}</p>
+                      <p>Luck: {nft.attributes.luck}</p>
                     </div>
                   </div>
                 ))}
@@ -206,9 +206,9 @@ export default function BattlePage() {
               <img src={selectedNFT.imageUrl} alt={selectedNFT.name} className="w-full h-48 object-cover rounded-md mb-2" />
               <h3 className="font-bold text-xl">{selectedNFT.name}</h3>
               <div className="text-sm text-gray-300 mt-2">
-                <p>Strength: {selectedNFT.strength}</p>
-                <p>Speed: {selectedNFT.speed}</p>
-                <p>Luck: {selectedNFT.luck}</p>
+                <p>Strength: {selectedNFT.attributes.strength}</p>
+                <p>Speed: {selectedNFT.attributes.speed}</p>
+                <p>Luck: {selectedNFT.attributes.luck}</p>
               </div>
               <button 
                 onClick={handleBackToFind}
@@ -232,9 +232,9 @@ export default function BattlePage() {
                   <div>
                     <h3 className="font-bold">{opponent.name} with {opponent.nft.name}</h3>
                     <div className="text-sm text-gray-300 mt-2">
-                      <p>Strength: {opponent.nft.strength}</p>
-                      <p>Speed: {opponent.nft.speed}</p>
-                      <p>Luck: {opponent.nft.luck}</p>
+                      <p>Strength: {opponent.nft.attributes.strength}</p>
+                      <p>Speed: {opponent.nft.attributes.speed}</p>
+                      <p>Luck: {opponent.nft.attributes.luck}</p>
                     </div>
                   </div>
                 </div>
@@ -246,8 +246,7 @@ export default function BattlePage() {
       
       {battleMode === 'battle' && selectedNFT && selectedOpponent && (
         <BattleArena 
-          userNFT={selectedNFT} 
-          opponentNFT={selectedOpponent.nft} 
+          opponentNFT={selectedOpponent.nft}
           opponentName={selectedOpponent.name}
           onStartBattle={handleStartBattle}
           onCancel={handleBackToFind}

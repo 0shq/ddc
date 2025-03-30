@@ -31,11 +31,11 @@ export class BattleSystem {
   
   private static calculateBattlePower(nft: NFTAttributes): number {
     return (
-      nft.strength * 2 +
-      nft.speed * 1.5 +
-      nft.luck * 1.2 +
-      nft.level * 10 +
-      nft.experience * 0.1
+      nft.attributes.strength * 2 +
+      nft.attributes.speed * 1.5 +
+      nft.attributes.luck * 1.2 +
+      nft.attributes.level * 10 +
+      nft.attributes.experience * 0.1
     );
   }
 }
