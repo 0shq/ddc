@@ -9,48 +9,75 @@ const STORAGE_KEYS = {
   USER_STATS: 'ddc_user_stats'
 };
 
+// Helper function to check if we're in a browser environment
+const isBrowser = typeof window !== 'undefined';
+
 // Local storage utilities
 export const Storage = {
   // Wallet
   saveWalletAddress: (address: string) => {
-    localStorage.setItem(STORAGE_KEYS.WALLET_ADDRESS, address);
+    if (isBrowser) {
+      localStorage.setItem(STORAGE_KEYS.WALLET_ADDRESS, address);
+    }
   },
   getWalletAddress: (): string | null => {
-    return localStorage.getItem(STORAGE_KEYS.WALLET_ADDRESS);
+    if (isBrowser) {
+      return localStorage.getItem(STORAGE_KEYS.WALLET_ADDRESS);
+    }
+    return null;
   },
 
   // Selected NFT
   saveSelectedNFT: (nft: NFTAttributes) => {
-    localStorage.setItem(STORAGE_KEYS.SELECTED_NFT, JSON.stringify(nft));
+    if (isBrowser) {
+      localStorage.setItem(STORAGE_KEYS.SELECTED_NFT, JSON.stringify(nft));
+    }
   },
   getSelectedNFT: (): NFTAttributes | null => {
-    const nft = localStorage.getItem(STORAGE_KEYS.SELECTED_NFT);
-    return nft ? JSON.parse(nft) : null;
+    if (isBrowser) {
+      const nft = localStorage.getItem(STORAGE_KEYS.SELECTED_NFT);
+      return nft ? JSON.parse(nft) : null;
+    }
+    return null;
   },
   clearSelectedNFT: () => {
-    localStorage.removeItem(STORAGE_KEYS.SELECTED_NFT);
+    if (isBrowser) {
+      localStorage.removeItem(STORAGE_KEYS.SELECTED_NFT);
+    }
   },
 
   // Battle History
   saveBattleHistory: (battles: BattleResult[]) => {
-    localStorage.setItem(STORAGE_KEYS.BATTLE_HISTORY, JSON.stringify(battles));
+    if (isBrowser) {
+      localStorage.setItem(STORAGE_KEYS.BATTLE_HISTORY, JSON.stringify(battles));
+    }
   },
   getBattleHistory: (): BattleResult[] => {
-    const battles = localStorage.getItem(STORAGE_KEYS.BATTLE_HISTORY);
-    return battles ? JSON.parse(battles) : [];
+    if (isBrowser) {
+      const battles = localStorage.getItem(STORAGE_KEYS.BATTLE_HISTORY);
+      return battles ? JSON.parse(battles) : [];
+    }
+    return [];
   },
 
   // User Stats
   saveUserStats: (stats: { wins: number; losses: number; totalBattles: number }) => {
-    localStorage.setItem(STORAGE_KEYS.USER_STATS, JSON.stringify(stats));
+    if (isBrowser) {
+      localStorage.setItem(STORAGE_KEYS.USER_STATS, JSON.stringify(stats));
+    }
   },
   getUserStats: () => {
-    const stats = localStorage.getItem(STORAGE_KEYS.USER_STATS);
-    return stats ? JSON.parse(stats) : { wins: 0, losses: 0, totalBattles: 0 };
+    if (isBrowser) {
+      const stats = localStorage.getItem(STORAGE_KEYS.USER_STATS);
+      return stats ? JSON.parse(stats) : { wins: 0, losses: 0, totalBattles: 0 };
+    }
+    return { wins: 0, losses: 0, totalBattles: 0 };
   },
 
   // Clear all data
   clearAll: () => {
-    Object.values(STORAGE_KEYS).forEach(key => localStorage.removeItem(key));
+    if (isBrowser) {
+      Object.values(STORAGE_KEYS).forEach(key => localStorage.removeItem(key));
+    }
   }
 }; 
