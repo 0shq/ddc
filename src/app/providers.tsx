@@ -22,10 +22,19 @@ interface ProvidersProps {
 export function Providers({ children }: ProvidersProps) {
   const [client] = React.useState(() => queryClient);
 
+  // Check if there's a saved wallet connection
+  const [autoConnect, setAutoConnect] = React.useState(() => {
+    if (typeof window !== 'undefined') {
+      const connectionInfo = localStorage.getItem('sui-dapp-kit:wallet-connection-info');
+      return Boolean(connectionInfo);
+    }
+    return false;
+  });
+
   return (
     <QueryClientProvider client={client}>
       <SuiClientProvider networks={networks} defaultNetwork="testnet">
-        <DappKitWalletProvider>
+        <DappKitWalletProvider autoConnect={autoConnect}>
           <WalletProvider>
             <NFTProvider>
               <GameProvider>

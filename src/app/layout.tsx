@@ -1,5 +1,3 @@
-// src/app/layout.tsx
-
 import { Metadata } from 'next';
 import { Providers } from './providers';
 import Header from '../components/layout/Header';

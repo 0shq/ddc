@@ -2,7 +2,7 @@
 
 // src/store/GameProvider.tsx
 
-import React, { createContext, useContext, useState, ReactNode } from 'react';
+import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
 import { NFTAttributes } from '../types/nft';
 import { useWalletContext } from './WalletProvider';
 import { useNFTs } from './NFTProvider';
@@ -10,6 +10,7 @@ import { TransactionBlock } from '@mysten/sui.js/transactions';
 import { GAME_PACKAGE_ID, GAME_MODULE } from '../lib/sui/constants';
 import { BattleSystem } from '../core/battle/BattleSystem';
 import { BattleResult } from '../types/battle';
+import { Storage } from '../lib/storage';
 
 interface GameContextType {
   battleInProgress: boolean;
@@ -76,8 +77,32 @@ export const GameProvider: React.FC<GameProviderProps> = ({ children }) => {
     opponentNFT: null,
     result: null
   });
-  const [battleHistory, setBattleHistory] = useState<BattleResult[]>([]);
+  const [battleHistory, setBattleHistory] = useState<BattleResult[]>(() => Storage.getBattleHistory());
   const [leaderboard, setLeaderboard] = useState<{ address: string; name: string; wins: number; level: number }[]>([]);
+  
+  // Sync currentBattle.userNFT with selectedNFT
+  useEffect(() => {
+    if (selectedNFT) {
+      setCurrentBattle(prev => ({
+        ...prev,
+        userNFT: selectedNFT
+      }));
+    }
+  }, [selectedNFT]);
+
+  // Load saved selected NFT on mount
+  useEffect(() => {
+    const savedNFT = Storage.getSelectedNFT();
+    if (savedNFT) {
+      // Update the selected NFT in NFTProvider
+      // This will be handled by the NFTProvider's own persistence
+    }
+  }, []);
+
+  // Save battle history when it changes
+  useEffect(() => {
+    Storage.saveBattleHistory(battleHistory);
+  }, [battleHistory]);
   
   // Initiate a battle
   const initiateBattle = async (opponentNFT: NFTAttributes) => {
@@ -99,24 +124,6 @@ export const GameProvider: React.FC<GameProviderProps> = ({ children }) => {
       // Execute battle logic using the BattleSystem
       const result = BattleSystem.executeBattle(selectedNFT, opponentNFT);
       
-      // In a real app, this would call the smart contract
-      // Here's what the transaction would look like:
-      /*
-      const txb = new TransactionBlock();
-      
-      txb.moveCall({
-        target: `${GAME_PACKAGE_ID}::${GAME_MODULE}::initiate_battle`,
-        arguments: [
-          txb.object('<admin-object-id>'),
-          txb.object(selectedNFT.id),
-          txb.pure(opponentNFT.id),
-          txb.object('<payment-coin-id>'),
-        ],
-      });
-      
-      await executeTransaction(txb);
-      */
-      
       // Update the current battle with the result
       setCurrentBattle(prev => ({
         ...prev,
@@ -125,6 +132,16 @@ export const GameProvider: React.FC<GameProviderProps> = ({ children }) => {
       
       // Add to battle history
       setBattleHistory(prev => [result, ...prev].slice(0, 10));
+      
+      // Update user stats
+      const stats = Storage.getUserStats();
+      stats.totalBattles++;
+      if (result.winner.id === selectedNFT.id) {
+        stats.wins++;
+      } else {
+        stats.losses++;
+      }
+      Storage.saveUserStats(stats);
       
       // Update leaderboard
       await refreshLeaderboard();

@@ -8,15 +8,16 @@ import { NFTAttributes } from '../types/nft';
 import { GAME_PACKAGE_ID, GAME_MODULE } from '../lib/sui/constants';
 import { SUI_PACKAGE_ID } from '../lib/sui/constants';
 import { TransactionBlock } from '@mysten/sui.js/transactions';
+import { Storage } from '../lib/storage';
 
 interface NFTContextType {
   userNFTs: NFTAttributes[];
   allNFTs: NFTAttributes[];
   isLoading: boolean;
   mintNFT: (name: string, description: string, imageUrl: string, rarity: number) => Promise<string>;
-  refreshNFTs: () => Promise<void>;
   selectedNFT: NFTAttributes | null;
-  selectNFT: (nft: NFTAttributes | null) => void;
+  setSelectedNFT: (nft: NFTAttributes | null) => void;
+  refreshNFTs: () => Promise<void>;
 }
 
 const NFTContext = createContext<NFTContextType>({
@@ -24,9 +25,9 @@ const NFTContext = createContext<NFTContextType>({
   allNFTs: [],
   isLoading: false,
   mintNFT: async () => { return ''; },
-  refreshNFTs: async () => {},
   selectedNFT: null,
-  selectNFT: () => {}
+  setSelectedNFT: () => {},
+  refreshNFTs: async () => {}
 });
 
 export const useNFTs = () => useContext(NFTContext);
@@ -38,101 +39,99 @@ interface NFTProviderProps {
 export const NFTProvider: React.FC<NFTProviderProps> = ({ children }) => {
   const { connected, address, executeTransaction } = useWalletContext();
   const [userNFTs, setUserNFTs] = useState<NFTAttributes[]>([]);
-  const [allNFTs, setAllNFTs] = useState<NFTAttributes[]>([]);
+  const [selectedNFT, setSelectedNFT] = useState<NFTAttributes | null>(() => Storage.getSelectedNFT());
   const [isLoading, setIsLoading] = useState(false);
-  const [selectedNFT, setSelectedNFT] = useState<NFTAttributes | null>(null);
-  
-  // Mock data for demo purposes
-  const MOCK_NFTS: NFTAttributes[] = [
-    {
-      id: '0x1234',
-      name: 'Doge Warrior',
-      owner: address || '0x5678',
-      attributes: {
-        strength: 75,
-        speed: 60,
-        luck: 45,
-        experience: 120,
-        level: 3
-      },
-      imageUrl: 'https://placehold.co/400x400?text=Doge+Warrior',
-      rarity: 'rare'
-    },
-    {
-      id: '0x2345',
-      name: 'Grumpy Cat',
-      owner: address || '0x5678',
-      attributes: {
-        strength: 65,
-        speed: 55,
-        luck: 80,
-        experience: 200,
-        level: 4
-      },
-      imageUrl: 'https://placehold.co/400x400?text=Grumpy+Cat',
-      rarity: 'epic'
-    },
-    {
-      id: '0x3456',
-      name: 'Nyan Unicorn',
-      owner: '0x9abc',
-      attributes: {
-        strength: 90,
-        speed: 95,
-        luck: 75,
-        experience: 350,
-        level: 6
-      },
-      imageUrl: 'https://placehold.co/400x400?text=Nyan+Unicorn',
-      rarity: 'legendary'
-    },
-    {
-      id: '0x4567',
-      name: 'Pepe Frog',
-      owner: '0xdef0',
-      attributes: {
-        strength: 60,
-        speed: 65,
-        luck: 70,
-        experience: 150,
-        level: 3
-      },
-      imageUrl: 'https://placehold.co/400x400?text=Pepe+Frog',
-      rarity: 'rare'
-    }
-  ];
 
-  // Load NFTs when wallet connects
+  // Load user's NFTs when wallet is connected
   useEffect(() => {
-    if (connected) {
-      refreshNFTs();
+    if (connected && address) {
+      loadUserNFTs();
     } else {
       setUserNFTs([]);
       setSelectedNFT(null);
+      Storage.clearAll();
     }
   }, [connected, address]);
 
-  // Refresh NFT data
-  const refreshNFTs = async () => {
-    if (!connected || !address) return;
-    
+  // Save selected NFT when it changes
+  useEffect(() => {
+    if (selectedNFT) {
+      Storage.saveSelectedNFT(selectedNFT);
+    } else {
+      Storage.clearAll();
+    }
+  }, [selectedNFT]);
+
+  const loadUserNFTs = async () => {
     setIsLoading(true);
-    
     try {
-      // In a real app, fetch actual NFTs from the blockchain
-      // For demo, use mock data
+      // In a real app, fetch NFTs from the blockchain
+      // For now, use mock data
+      const mockNFTs: NFTAttributes[] = [
+        {
+          id: '1',
+          name: 'Doge Warrior',
+          owner: address || '0x123',
+          attributes: {
+            strength: 75,
+            speed: 60,
+            luck: 45,
+            experience: 120,
+            level: 3
+          },
+          imageUrl: '/images/nfts/doge1.png',
+          rarity: 'rare'
+        },
+        {
+          id: '2',
+          name: 'Grumpy Cat',
+          owner: address || '0x123',
+          attributes: {
+            strength: 65,
+            speed: 55,
+            luck: 80,
+            experience: 200,
+            level: 4
+          },
+          imageUrl: '/images/nfts/cat1.png',
+          rarity: 'epic'
+        },
+        {
+          id: '3',
+          name: 'Nyan Unicorn',
+          owner: address || '0x123',
+          attributes: {
+            strength: 90,
+            speed: 95,
+            luck: 75,
+            experience: 350,
+            level: 6
+          },
+          imageUrl: '/images/nfts/unicorn1.png',
+          rarity: 'legendary'
+        }
+      ];
       
-      // Filter mock NFTs for user's NFTs
-      const mockUserNFTs = MOCK_NFTS.filter(nft => nft.owner === address);
-      setUserNFTs(mockUserNFTs);
-      setAllNFTs(MOCK_NFTS);
+      setUserNFTs(mockNFTs);
       
-      // If no NFT is selected but user has NFTs, select the first one
-      if (!selectedNFT && mockUserNFTs.length > 0) {
-        setSelectedNFT(mockUserNFTs[0]);
+      // If there's a saved selected NFT, try to find it in the loaded NFTs
+      const savedNFT = Storage.getSelectedNFT();
+      if (savedNFT) {
+        const foundNFT = mockNFTs.find(nft => nft.id === savedNFT.id);
+        if (foundNFT) {
+          setSelectedNFT(foundNFT);
+        } else {
+          // If saved NFT not found in current NFTs, clear the selection
+          setSelectedNFT(null);
+          Storage.clearSelectedNFT();
+        }
+      } else if (mockNFTs.length > 0 && !selectedNFT) {
+        // If no saved NFT and no current selection, select the first NFT
+        setSelectedNFT(mockNFTs[0]);
+        Storage.saveSelectedNFT(mockNFTs[0]);
       }
     } catch (error) {
-      console.error('Failed to fetch NFTs:', error);
+      console.error('Failed to load NFTs:', error);
     } finally {
       setIsLoading(false);
     }
@@ -160,7 +159,7 @@ export const NFTProvider: React.FC<NFTProviderProps> = ({ children }) => {
       const txDigest = await executeTransaction(txb);
       
       // Refresh NFTs after minting
-      await refreshNFTs();
+      await loadUserNFTs();
       
       return txDigest;
     } catch (error) {
@@ -169,19 +168,14 @@ export const NFTProvider: React.FC<NFTProviderProps> = ({ children }) => {
     }
   };
 
-  // Select an NFT
-  const selectNFT = (nft: NFTAttributes | null) => {
-    setSelectedNFT(nft);
-  };
-
   const value = {
     userNFTs,
-    allNFTs,
+    allNFTs: [],
     isLoading,
     mintNFT,
-    refreshNFTs,
     selectedNFT,
-    selectNFT
+    setSelectedNFT,
+    refreshNFTs: loadUserNFTs
   };
 
   return (

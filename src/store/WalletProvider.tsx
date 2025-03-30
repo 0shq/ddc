@@ -1,33 +1,30 @@
 'use client';
 
-// src/store/WalletProvider.tsx
-
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { useWallets, useCurrentAccount, useSuiClient } from '@mysten/dapp-kit';
 import type { TransactionBlock } from '@mysten/sui.js/transactions';
+import { Storage } from '../lib/storage';
 
 // Wallet context type definitions
 interface WalletContextType {
   connected: boolean;
-  connecting: boolean;
-  disconnect: () => Promise<void>;
-  currentAccount: any | null;
-  suiClient: ReturnType<typeof useSuiClient>;
   address: string | null;
+  connecting: boolean;
+  error: string | null;
+  disconnect: () => Promise<void>;
   executeTransaction: (tx: TransactionBlock) => Promise<string>;
 }
 
-// Create context with default values
-const WalletContext = createContext<WalletContextType | undefined>(undefined);
+const WalletContext = createContext<WalletContextType>({
+  connected: false,
+  address: null,
+  connecting: false,
+  error: null,
+  disconnect: async () => {},
+  executeTransaction: async () => ''
+});
 
-// Hook for using the wallet context
-export const useWalletContext = () => {
-  const context = useContext(WalletContext);
-  if (context === undefined) {
-    throw new Error('useWalletContext must be used within a WalletProvider');
-  }
-  return context;
-};
+export const useWalletContext = () => useContext(WalletContext);
 
 interface WalletProviderProps {
   children: ReactNode;
@@ -39,16 +36,59 @@ export const WalletProvider: React.FC<WalletProviderProps> = ({ children }) => {
   const suiClient = useSuiClient();
   const [connected, setConnected] = useState(false);
   const [connecting, setConnecting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
+  // Initialize connection state from localStorage on mount
   useEffect(() => {
-    setConnected(wallets.length > 0 && currentAccount !== null);
-  }, [wallets, currentAccount]);
+    const connectionInfo = localStorage.getItem('sui-dapp-kit:wallet-connection-info');
+    if (connectionInfo) {
+      try {
+        const { lastConnectedWalletName } = JSON.parse(connectionInfo);
+        if (lastConnectedWalletName) {
+          setConnected(true);
+        }
+      } catch (error) {
+        console.error('Error parsing wallet connection info:', error);
+      }
+    }
+  }, []);
+
+  // Handle connection state changes
+  useEffect(() => {
+    const isConnected = Boolean(currentAccount);
+    setConnected(isConnected);
+    
+    if (isConnected && currentAccount?.address) {
+      // Save our app's data when connected
+      Storage.saveWalletAddress(currentAccount.address);
+      
+      // Load saved NFT and game state if available
+      const savedNFT = Storage.getSelectedNFT();
+      if (savedNFT) {
+        // NFTProvider will handle this through its own useEffect
+      }
+      
+      const savedBattleHistory = Storage.getBattleHistory();
+      if (savedBattleHistory) {
+        // GameProvider will handle this through its own useEffect
+      }
+    }
+  }, [currentAccount]);
 
   const disconnect = async () => {
     setConnecting(true);
     try {
-      // The dapp-kit handles disconnection through the ConnectButton component
+      // Clear our app's data
+      Storage.clearSelectedNFT();
+      Storage.saveBattleHistory([]);
+      Storage.saveUserStats({ wins: 0, losses: 0, totalBattles: 0 });
+      Storage.saveWalletAddress('');
+      
+      // Let dapp-kit handle the actual wallet disconnection
       setConnected(false);
+      
+      // Clear dapp-kit's connection info
+      localStorage.removeItem('sui-dapp-kit:wallet-connection-info');
     } catch (error) {
       console.error('Error disconnecting wallet:', error);
     } finally {
@@ -57,7 +97,7 @@ export const WalletProvider: React.FC<WalletProviderProps> = ({ children }) => {
   };
 
   const executeTransaction = async (tx: TransactionBlock): Promise<string> => {
-    if (!currentAccount || wallets.length === 0) {
+    if (!currentAccount) {
       throw new Error('No wallet connected');
     }
 
@@ -71,18 +111,17 @@ export const WalletProvider: React.FC<WalletProviderProps> = ({ children }) => {
     }
   };
 
+  const value = {
+    connected,
+    address: currentAccount?.address || null,
+    connecting,
+    error,
+    disconnect,
+    executeTransaction
+  };
+
   return (
-    <WalletContext.Provider
-      value={{
-        connected,
-        connecting,
-        disconnect,
-        currentAccount,
-        suiClient,
-        address: currentAccount?.address || null,
-        executeTransaction,
-      }}
-    >
+    <WalletContext.Provider value={value}>
       {children}
     </WalletContext.Provider>
   );
