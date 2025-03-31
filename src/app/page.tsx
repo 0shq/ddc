@@ -22,7 +22,7 @@ export default function Home() {
         </Link>
 
         <Link href="/battle" className="card group hover:border-primary/50 transition-all">
-          <h2 className="text-2xl font-bold mb-4 text-secondary">Enter Battle</h2>
+          <h2 className="text-2xl font-bold mb-4 text-primary">Enter Battle</h2>
           <p className="text-white/70 group-hover:text-white/90 transition-colors">
             Challenge other players in exciting battles. Use strategy and skill to climb the leaderboard.
           </p>

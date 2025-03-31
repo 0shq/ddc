@@ -1,36 +1,39 @@
-'use client';
+"use client";
 
-import React from 'react';
-import Link from 'next/link';
-import { ConnectButton } from '@mysten/dapp-kit';
-import { useWalletContext } from '../../store/WalletProvider';
+import React from "react";
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+} from "@/components/ui/breadcrumb";
+import { Separator } from "@/components/ui/separator";
+import { SidebarTrigger } from "@/components/ui/sidebar";
+import { ModeToggle } from "./ModeToggle";
 
 const Header: React.FC = () => {
-  const { connected, address, error } = useWalletContext();
-
   return (
-    <header className="bg-gray-800 border-b border-gray-700">
-      <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-        <Link href="/" className="text-2xl font-bold text-white hover:text-primary transition-colors">
-          Degen D. Clash
-        </Link>
-        
-        <div className="flex items-center gap-4">
-          {error && (
-            <span className="text-red-500 text-sm">{error}</span>
-          )}
-          
-          {connected && (
-            <span className="text-sm text-gray-300">
-              {address?.slice(0, 6)}...{address?.slice(-4)}
-            </span>
-          )}
-          
-          <ConnectButton />
-        </div>
+    <header className="flex h-16 shrink-0 items-center justify-between px-4">
+      <div className="flex items-center gap-2">
+        <SidebarTrigger className="-ml-1" />
+        <Separator
+          orientation="vertical"
+          className="mr-2 data-[orientation=vertical]:h-4"
+        />
+        <Breadcrumb>
+          <BreadcrumbList>
+            <BreadcrumbItem className="hidden md:block">
+              <BreadcrumbLink href="/" className="font-bold">Degen D. Clash</BreadcrumbLink>
+            </BreadcrumbItem>
+          </BreadcrumbList>
+        </Breadcrumb>
+      </div>
+
+      <div className="flex items-center">
+        <ModeToggle />
       </div>
     </header>
   );
 };
 
-export default Header; 
+export default Header;
