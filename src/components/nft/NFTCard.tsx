@@ -8,7 +8,7 @@ interface NFTCardProps {
   nft: NFTAttributes;
 }
 
-const NFTCard: React.FC<NFTCardProps> = ({ nft }) => {
+const NFTCard = ({ nft }: NFTCardProps) => {
   return (
     <div className="card">
       <div className="relative w-full aspect-square mb-4">

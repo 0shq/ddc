@@ -34,7 +34,7 @@ interface NFTProviderProps {
   children: ReactNode;
 }
 
-export const NFTProvider: React.FC<NFTProviderProps> = ({ children }) => {
+export const NFTProvider = ({ children }: NFTProviderProps) => {
   const { connected, address, executeTransaction } = useWalletContext();
   const [userNFTs, setUserNFTs] = useState<NFTAttributes[]>([]);
   const [selectedNFT, setSelectedNFT] = useState<NFTAttributes | null>(() => Storage.getSelectedNFT());

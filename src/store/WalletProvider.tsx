@@ -30,7 +30,7 @@ interface WalletProviderProps {
   children: ReactNode;
 }
 
-export const WalletProvider: React.FC<WalletProviderProps> = ({ children }) => {
+export const WalletProvider = ({ children }: WalletProviderProps) => {
   const wallets = useWallets();
   const currentAccount = useCurrentAccount();
   const suiClient = useSuiClient();

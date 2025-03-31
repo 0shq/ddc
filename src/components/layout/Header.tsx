@@ -11,7 +11,7 @@ import { Separator } from "@/src/components/ui/separator";
 import { SidebarTrigger } from "@/src/components/ui/sidebar";
 import { ModeToggle } from "./ModeToggle";
 
-const Header: React.FC = () => {
+const Header = () => {
   return (
     <header className="flex h-16 shrink-0 items-center justify-between px-4">
       <div className="flex items-center gap-2">

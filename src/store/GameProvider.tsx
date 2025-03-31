@@ -61,7 +61,7 @@ interface GameProviderProps {
   children: ReactNode;
 }
 
-export const GameProvider: React.FC<GameProviderProps> = ({ children }) => {
+export const GameProvider = ({ children }: GameProviderProps) => {
   const { connected, address, executeTransaction } = useWalletContext();
   const { selectedNFT, allNFTs } = useNFTs();
   
