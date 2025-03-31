@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { useNFTs } from '../../store/NFTProvider';
-import { NFTAttributes } from '../../types/nft';
+import { useNFTs } from '@/src/store/NFTProvider';
+import { NFTAttributes } from '@/src/types/nft';
 
 interface BattleResult {
   winner: NFTAttributes;

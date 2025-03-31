@@ -2,7 +2,7 @@
 
 import React from 'react';
 import Image from 'next/image';
-import { NFTAttributes } from '../../types/nft';
+import { NFTAttributes } from '@/src/types/nft';
 
 interface NFTCardProps {
   nft: NFTAttributes;

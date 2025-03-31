@@ -1,5 +1,5 @@
-import { NFTAttributes } from '../../types/nft';
-import { BattleResult } from '../../types/battle';
+import { NFTAttributes } from '@/src/types/nft';
+import { BattleResult } from '@/src/types/battle';
 
 export class BattleSystem {
   static executeBattle(nft1: NFTAttributes, nft2: NFTAttributes): BattleResult {

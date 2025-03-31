@@ -1,14 +1,12 @@
 'use client';
 
-// src/store/NFTProvider.tsx
-
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { useWalletContext } from './WalletProvider';
-import { NFTAttributes } from '../types/nft';
-import { GAME_PACKAGE_ID, GAME_MODULE } from '../lib/sui/constants';
-import { SUI_PACKAGE_ID } from '../lib/sui/constants';
+import { useWalletContext } from '@/src/store/WalletProvider';
+import { NFTAttributes } from '@/src/types/nft';
+import { GAME_PACKAGE_ID, GAME_MODULE } from '@/src/lib/sui/constants';
+import { SUI_PACKAGE_ID } from '@/src/lib/sui/constants';
 import { TransactionBlock } from '@mysten/sui.js/transactions';
-import { Storage } from '../lib/storage';
+import { Storage } from '@/src/lib/storage';
 
 interface NFTContextType {
   userNFTs: NFTAttributes[];

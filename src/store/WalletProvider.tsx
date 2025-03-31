@@ -3,7 +3,7 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { useWallets, useCurrentAccount, useSuiClient } from '@mysten/dapp-kit';
 import type { TransactionBlock } from '@mysten/sui.js/transactions';
-import { Storage } from '../lib/storage';
+import { Storage } from '@/src/lib/storage';
 
 // Wallet context type definitions
 interface WalletContextType {

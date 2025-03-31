@@ -1,83 +1,148 @@
-# Degen D. Clash - File Structure
-
-## Project Overview
-Degen D. Clash is an NFT battle game built on the Sui blockchain. This document outlines the project's file structure and organization.
-
-## Directory Structure
+# DDC File Structure
 
 ```
-src/
-├── app/                    # Next.js app directory
-│   ├── battle/            # Battle arena page
-│   │   └── page.tsx       # Battle page component
-│   ├── mint/              # NFT minting page
-│   │   └── page.tsx       # Mint page component
-│   ├── profile/           # User profile page
-│   │   └── page.tsx       # Profile page component
-│   ├── inventory/         # NFT inventory page
-│   │   └── page.tsx       # Inventory page component
-│   ├── leaderboard/       # Global leaderboard page
-│   │   └── page.tsx       # Leaderboard page component
-│   ├── layout.tsx         # Root layout component
-│   ├── client-layout.tsx  # Client-side layout wrapper
-│   ├── providers.tsx      # App-wide providers
-│   └── globals.css        # Global styles
+ddc/
+├── src/
+│   ├── app/                      # Next.js app directory
+│   │   ├── battle/              # Battle page
+│   │   │   └── page.tsx
+│   │   ├── inventory/           # Inventory page
+│   │   │   └── page.tsx
+│   │   ├── leaderboard/         # Leaderboard page
+│   │   │   └── page.tsx
+│   │   ├── mint/                # Mint page
+│   │   │   └── page.tsx
+│   │   ├── profile/             # Profile page
+│   │   │   └── page.tsx
+│   │   ├── globals.css          # Global styles
+│   │   ├── layout.tsx           # Root layout
+│   │   ├── page.tsx             # Home page
+│   │   └── root-layout.tsx      # Root layout wrapper
+│   │
+│   ├── components/              # React components
+│   │   ├── app-providers/       # App-wide providers
+│   │   │   ├── providers.tsx
+│   │   │   └── theme-provider.tsx
+│   │   ├── battle/             # Battle-related components
+│   │   │   ├── BattleArena.tsx
+│   │   │   └── BattleHistory.tsx
+│   │   ├── layout/             # Layout components
+│   │   │   ├── Header.tsx
+│   │   │   ├── ModeToggle.tsx
+│   │   │   └── sidebar/
+│   │   │       ├── app-sidebar.tsx
+│   │   │       └── nav-projects.tsx
+│   │   ├── nft/                # NFT-related components
+│   │   │   └── NFTCard.tsx
+│   │   └── ui/                 # UI components (shadcn/ui)
+│   │       ├── avatar.tsx
+│   │       ├── breadcrumb.tsx
+│   │       ├── button.tsx
+│   │       ├── card.tsx
+│   │       ├── collapsible.tsx
+│   │       ├── dialog.tsx
+│   │       ├── dropdown-menu.tsx
+│   │       ├── input.tsx
+│   │       ├── label.tsx
+│   │       ├── select.tsx
+│   │       ├── separator.tsx
+│   │       ├── sheet.tsx
+│   │       ├── sidebar.tsx
+│   │       ├── skeleton.tsx
+│   │       └── tooltip.tsx
+│   │
+│   ├── core/                   # Core business logic
+│   │   └── battle/            # Battle system
+│   │       └── BattleSystem.ts
+│   │
+│   ├── hooks/                 # Custom React hooks
+│   │   └── use-mobile.ts
+│   │
+│   ├── lib/                   # Utility libraries
+│   │   ├── storage/          # Storage utilities
+│   │   │   └── index.ts
+│   │   ├── sui/              # Sui blockchain utilities
+│   │   │   └── constants.ts
+│   │   └── utils.ts
+│   │
+│   ├── store/                # State management
+│   │   ├── GameProvider.tsx
+│   │   ├── NFTProvider.tsx
+│   │   └── WalletProvider.tsx
+│   │
+│   └── types/                # TypeScript types
+│       ├── battle.ts
+│       └── nft.ts
 │
-├── components/            # Reusable components
-│   ├── battle/           # Battle-related components
-│   │   ├── BattleArena.tsx    # Battle visualization
-│   │   └── BattleHistory.tsx  # Battle history display
-│   ├── layout/           # Layout components
-│   │   ├── Header.tsx    # Site header
-│   │   ├── Footer.tsx    # Site footer
-│   │   └── Sidebar.tsx   # Navigation sidebar
-│   └── nft/              # NFT-related components
-│       └── NFTCard.tsx   # NFT display card
-│
-├── store/                # State management
-│   ├── WalletProvider.tsx    # Wallet connection state
-│   ├── NFTProvider.tsx       # NFT management state
-│   └── GameProvider.tsx      # Game state management
-│
-├── types/                # TypeScript type definitions
-│   ├── nft.ts           # NFT-related types
-│   └── battle.ts        # Battle-related types
-│
-├── lib/                  # Utility libraries
-│   └── sui/             # Sui blockchain integration
-│       └── constants.ts  # Blockchain constants
-│
-└── core/                # Core game logic
-    └── battle/          # Battle system
-        └── BattleSystem.ts  # Battle mechanics
-
+├── public/                   # Static assets
+├── .next/                    # Next.js build output
+├── node_modules/             # Dependencies
+├── .git/                     # Git repository
+├── .cursor/                  # Cursor IDE settings
+├── components.json           # shadcn/ui configuration
+├── next.config.ts           # Next.js configuration
+├── next-env.d.ts           # Next.js TypeScript declarations
+├── package.json             # Project dependencies and scripts
+├── package-lock.json        # Locked dependencies
+├── postcss.config.js        # PostCSS configuration
+├── postcss.config.mjs       # PostCSS module configuration
+├── tailwind.config.js       # Tailwind CSS configuration
+└── tsconfig.json           # TypeScript configuration
 ```
 
-## Key Files and Their Purposes
+## Directory Structure Overview
 
-### App Pages
-- `battle/page.tsx`: Main battle arena interface with opponent selection and battle visualization
-- `mint/page.tsx`: NFT minting interface with preview functionality
-- `profile/page.tsx`: User profile and statistics
-- `inventory/page.tsx`: NFT collection management
-- `leaderboard/page.tsx`: Global player rankings
-- `providers.tsx`: App-wide context providers setup
-- `client-layout.tsx`: Client-side layout wrapper for Next.js
+### `/src/app`
+- Contains all Next.js pages and layouts
+- Implements the app router structure
+- Includes global styles and root layouts
 
-### Components
-- `BattleArena.tsx`: Battle visualization and controls with opponent display
-- `BattleHistory.tsx`: Display of past battles and results
-- `NFTCard.tsx`: NFT display component with attributes
-- Layout components for consistent UI structure
+### `/src/components`
+- `app-providers/`: Global context providers
+- `battle/`: Battle-related components
+- `layout/`: Layout components including sidebar
+- `nft/`: NFT-related components
+- `ui/`: Reusable UI components from shadcn/ui
+
+### `/src/core`
+- Contains core business logic
+- Implements the battle system
+
+### `/src/hooks`
+- Custom React hooks for shared functionality
+
+### `/src/lib`
+- Utility libraries and helpers
+- Storage and blockchain utilities
+
+### `/src/store`
+- State management providers
+- Handles wallet, NFT, and game state
+
+### `/src/types`
+- TypeScript type definitions
+- Shared interfaces and types
+
+## Key Files
+
+### Configuration Files
+- `next.config.ts`: Next.js configuration
+- `tailwind.config.js`: Tailwind CSS configuration
+- `tsconfig.json`: TypeScript configuration
+- `components.json`: shadcn/ui configuration
+
+### Core Application Files
+- `src/app/layout.tsx`: Main application layout
+- `src/app/page.tsx`: Home page
+- `src/app/globals.css`: Global styles
 
 ### State Management
-- `WalletProvider.tsx`: Manages wallet connection and transactions
-- `NFTProvider.tsx`: Handles NFT ownership, minting, and attributes
-- `GameProvider.tsx`: Manages game state, battle logic, and results
+- `src/store/WalletProvider.tsx`: Wallet state management
+- `src/store/NFTProvider.tsx`: NFT state management
+- `src/store/GameProvider.tsx`: Game state management
 
-### Types
-- `nft.ts`: NFT attribute definitions including strength, speed, luck, etc.
-- `battle.ts`: Battle result and state types for game mechanics
-
-### Core Logic
-- `BattleSystem.ts`: Implements battle mechanics and scoring system
+### UI Components
+- `src/components/ui/*`: shadcn/ui components
+- `src/components/layout/*`: Layout components
+- `src/components/battle/*`: Battle-related components
+- `src/components/nft/*`: NFT-related components

@@ -6,9 +6,9 @@ import {
   BreadcrumbItem,
   BreadcrumbLink,
   BreadcrumbList,
-} from "@/components/ui/breadcrumb";
-import { Separator } from "@/components/ui/separator";
-import { SidebarTrigger } from "@/components/ui/sidebar";
+} from "@/src/components/ui/breadcrumb";
+import { Separator } from "@/src/components/ui/separator";
+import { SidebarTrigger } from "@/src/components/ui/sidebar";
 import { ModeToggle } from "./ModeToggle";
 
 const Header: React.FC = () => {

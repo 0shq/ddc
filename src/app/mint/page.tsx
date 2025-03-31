@@ -1,11 +1,9 @@
-// src/app/mint/page.tsx
-
 'use client';
 
 import React, { useState } from 'react';
-import { useWalletContext } from '../../store/WalletProvider';
-import { useNFTs } from '../../store/NFTProvider';
-import NFTCard from '../../components/nft/NFTCard';
+import { useWalletContext } from '@/src/store/WalletProvider';
+import { useNFTs } from '@/src/store/NFTProvider';
+import NFTCard from '@/src/components/nft/NFTCard';
 
 export default function MintPage() {
   const { connected } = useWalletContext();

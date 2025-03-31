@@ -1,7 +1,7 @@
 import React from 'react';
 import Link from 'next/link';
-import { BattleResult } from '../../types/battle';
-import { NFTAttributes } from '../../types/nft';
+import { BattleResult } from '@/src/types/battle';
+import { NFTAttributes } from '@/src/types/nft';
 
 interface BattleHistoryProps {
   battles: BattleResult[];

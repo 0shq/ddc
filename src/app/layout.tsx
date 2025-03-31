@@ -1,14 +1,14 @@
 import { Metadata } from "next";
-import { Providers } from "../components/app-providers/providers";
-import Header from "../components/layout/Header";
+import { Providers } from "@/src/components/app-providers/providers";
+import Header from "@/src/components/layout/Header";
 import "@mysten/dapp-kit/dist/index.css";
-import "./globals.css";
-import { AppSidebar } from "@/components/app-sidebar";
+import "@/src/app/globals.css";
+import { AppSidebar } from "@/src/components/layout/sidebar/app-sidebar";
 import {
   SidebarInset,
   SidebarProvider,
-} from "@/components/ui/sidebar";
-import { ThemeProvider } from "../components/app-providers/theme-provider";
+} from "@/src/components/ui/sidebar";
+import { ThemeProvider } from "@/src/components/app-providers/theme-provider";
 
 export const metadata: Metadata = {
   title: "Degen D. Clash",

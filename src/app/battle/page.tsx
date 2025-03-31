@@ -2,12 +2,12 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import BattleArena from '../../components/battle/BattleArena';
-import BattleHistory from '../../components/battle/BattleHistory';
-import { useWalletContext } from '../../store/WalletProvider';
-import { useNFTs } from '../../store/NFTProvider';
-import { useGame } from '../../store/GameProvider';
-import { NFTAttributes } from '../../types/nft';
+import BattleArena from '@/src/components/battle/BattleArena';
+import BattleHistory from '@/src/components/battle/BattleHistory';
+import { useWalletContext } from '@/src/store/WalletProvider';
+import { useNFTs } from '@/src/store/NFTProvider';
+import { useGame } from '@/src/store/GameProvider';
+import { NFTAttributes } from '@/src/types/nft';
 
 interface Opponent {
   id: string;

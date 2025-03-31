@@ -2,9 +2,6 @@
 
 import * as React from "react";
 import {
-  Map,
-  Frame,
-  PieChart,
   Sword,
   Coins,
   Trophy,
@@ -12,7 +9,7 @@ import {
   ShoppingCart,
 } from "lucide-react";
 
-import { NavProjects } from "@/components/nav-projects";
+import { NavProjects } from "@/src/components/layout/sidebar/nav-projects";
 import {
   Sidebar,
   SidebarContent,
@@ -20,7 +17,7 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-} from "@/components/ui/sidebar";
+} from "@/src/components/ui/sidebar";
 import { useWalletContext } from "@/src/store/WalletProvider";
 import { ConnectButton } from "@mysten/dapp-kit";
 import { useTheme } from "next-themes";
