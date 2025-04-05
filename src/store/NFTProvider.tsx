@@ -2,30 +2,40 @@
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { useWalletContext } from '@/src/store/WalletProvider';
-import { NFTAttributes } from '@/src/types/nft';
-import { GAME_PACKAGE_ID, GAME_MODULE } from '@/src/lib/sui/constants';
-import { SUI_PACKAGE_ID } from '@/src/lib/sui/constants';
-import { TransactionBlock } from '@mysten/sui.js/transactions';
+import { PACKAGE_ID, GAME_MODULE, ADMIN_CAP_ID } from '@/src/lib/sui/constants';
 import { Storage } from '@/src/lib/storage';
+import { SuiClient, getFullnodeUrl } from '@mysten/sui/client';
+import { Transaction } from '@mysten/sui/transactions';
+import { NFTAttributes, NFTData } from '@/src/types/nft';
 
 interface NFTContextType {
   userNFTs: NFTAttributes[];
   allNFTs: NFTAttributes[];
   isLoading: boolean;
-  mintNFT: (name: string, description: string, imageUrl: string, rarity: number) => Promise<string>;
+  mintNFT: (name: string, description: string, imageUrl: string) => Promise<void>;
+  stakeNFT: (nftId: string) => Promise<void>;
+  unstakeNFT: (nftId: string) => Promise<void>;
+  error: string | null;
   selectedNFT: NFTAttributes | null;
   setSelectedNFT: (nft: NFTAttributes | null) => void;
   refreshNFTs: () => Promise<void>;
+  initiateBattle: (nft1Id: string, nft2Id: string) => Promise<string>;
+  getStakingRewards: (nft: NFTAttributes) => number;
 }
 
 const NFTContext = createContext<NFTContextType>({
   userNFTs: [],
   allNFTs: [],
   isLoading: false,
-  mintNFT: async () => { return ''; },
+  mintNFT: async () => {},
+  stakeNFT: async () => {},
+  unstakeNFT: async () => {},
+  error: null,
   selectedNFT: null,
   setSelectedNFT: () => {},
-  refreshNFTs: async () => {}
+  refreshNFTs: async () => {},
+  initiateBattle: async () => { return ''; },
+  getStakingRewards: () => 0
 });
 
 export const useNFTs = () => useContext(NFTContext);
@@ -39,6 +49,8 @@ export const NFTProvider = ({ children }: NFTProviderProps) => {
   const [userNFTs, setUserNFTs] = useState<NFTAttributes[]>([]);
   const [selectedNFT, setSelectedNFT] = useState<NFTAttributes | null>(() => Storage.getSelectedNFT());
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const provider = new SuiClient({ url: getFullnodeUrl('testnet') });
 
   // Load user's NFTs when wallet is connected
   useEffect(() => {
@@ -61,72 +73,71 @@ export const NFTProvider = ({ children }: NFTProviderProps) => {
   }, [selectedNFT]);
 
   const loadUserNFTs = async () => {
+    if (!connected || !address) return;
+    
     setIsLoading(true);
     try {
-      // In a real app, fetch NFTs from the blockchain
-      // For now, use mock data
-      const mockNFTs: NFTAttributes[] = [
-        {
-          id: '1',
-          name: 'Doge Warrior',
-          owner: address || '0x123',
-          attributes: {
-            strength: 75,
-            speed: 60,
-            luck: 45,
-            experience: 120,
-            level: 3
-          },
-          imageUrl: '/images/nfts/doge1.png',
-          rarity: 'rare'
+      // Fetch NFTs owned by the user
+      const objects = await provider.getOwnedObjects({
+        owner: address,
+        filter: {
+          StructType: `${PACKAGE_ID}::${GAME_MODULE}::NFT`
         },
-        {
-          id: '2',
-          name: 'Grumpy Cat',
-          owner: address || '0x123',
-          attributes: {
-            strength: 65,
-            speed: 55,
-            luck: 80,
-            experience: 200,
-            level: 4
-          },
-          imageUrl: '/images/nfts/cat1.png',
-          rarity: 'epic'
-        },
-        {
-          id: '3',
-          name: 'Nyan Unicorn',
-          owner: address || '0x123',
-          attributes: {
-            strength: 90,
-            speed: 95,
-            luck: 75,
-            experience: 350,
-            level: 6
-          },
-          imageUrl: '/images/nfts/unicorn1.png',
-          rarity: 'legendary'
+        options: {
+          showContent: true,
+          showBcs: true,
+          showOwner: true,
+          showPreviousTransaction: true,
+          showStorageRebate: true,
+          showDisplay: true,
         }
-      ];
+      });
+
+      const nfts: NFTAttributes[] = await Promise.all(
+        objects.data.map(async (obj) => {
+          if (!obj.data?.objectId) {
+            throw new Error('Invalid object data');
+          }
+
+          const details = await provider.getObject({
+            id: obj.data.objectId,
+            options: { showContent: true }
+          });
+          
+          if (!details.data?.content || details.data.content.dataType !== 'moveObject') {
+            throw new Error('Invalid NFT data');
+          }
+
+          const nftData = details.data.content as unknown as NFTData;
+          return {
+            id: nftData.id,
+            name: nftData.name,
+            owner: nftData.owner,
+            attributes: nftData.attributes,
+            imageUrl: nftData.image_url,
+            rarity: nftData.rarity.toString(),
+            staked_at: nftData.staked_at,
+            experience: nftData.experience,
+            level: nftData.level
+          };
+        })
+      );
       
-      setUserNFTs(mockNFTs);
+      setUserNFTs(nfts);
       
-      // If there's a saved selected NFT, try to find it in the loaded NFTs
+      // Handle selected NFT
       const savedNFT = Storage.getSelectedNFT();
       if (savedNFT) {
-        const foundNFT = mockNFTs.find(nft => nft.id === savedNFT.id);
+        const foundNFT = nfts.find(nft => nft.id === savedNFT.id);
         if (foundNFT) {
           setSelectedNFT(foundNFT);
         } else {
-          // If saved NFT not found in current NFTs, clear the selection
           setSelectedNFT(null);
           Storage.clearSelectedNFT();
         }
-      } else if (mockNFTs.length > 0 && !selectedNFT) {
-        // If no saved NFT and no current selection, select the first NFT
-        setSelectedNFT(mockNFTs[0]);
-        Storage.saveSelectedNFT(mockNFTs[0]);
+      } else if (nfts.length > 0 && !selectedNFT) {
+        setSelectedNFT(nfts[0]);
+        Storage.saveSelectedNFT(nfts[0]);
       }
     } catch (error) {
       console.error('Failed to load NFTs:', error);
@@ -135,45 +146,161 @@ export const NFTProvider = ({ children }: NFTProviderProps) => {
     }
   };
 
-  // Mint a new NFT
-  const mintNFT = async (name: string, description: string, imageUrl: string, rarity: number): Promise<string> => {
+  const getStakingRewards = (nft: NFTAttributes): number => {
+    if (!nft.staked_at) return 0;
+    
+    const now = Date.now();
+    const stakedDuration = (now - nft.staked_at) / (24 * 60 * 60 * 1000); // Convert to days
+    
+    let dailyReward = 0;
+    switch (nft.rarity) {
+      case 'common':
+        dailyReward = 0.001;
+        break;
+      case 'rare':
+        dailyReward = 0.002;
+        break;
+      case 'epic':
+        dailyReward = 0.005;
+        break;
+      case 'legendary':
+        dailyReward = 0.01;
+        break;
+    }
+    
+    return dailyReward * stakedDuration;
+  };
+
+  const mintNFT = async (name: string, description: string, imageUrl: string) => {
+    if (!connected) throw new Error('Wallet not connected');
+    
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      const tx = new Transaction();
+      
+      // Create coin for payment (0.2 SUI for mystery box)
+      const [coin] = tx.splitCoins(tx.gas, [tx.pure.u64(200000000)]); // 0.2 SUI
+      
+      // Call mint_nft function
+      tx.moveCall({
+        target: `${PACKAGE_ID}::game::mint_nft`,
+        arguments: [
+          tx.object(ADMIN_CAP_ID),
+          tx.object('0x6'), // Clock object
+          coin,
+          tx.pure.string(name),
+          tx.pure.string(description),
+          tx.pure.string(imageUrl),
+        ],
+      });
+
+      const result = await executeTransaction(tx);
+      console.log('Mint result:', result);
+      await loadUserNFTs();
+    } catch (err: any) {
+      setError(err.message);
+      console.error('Failed to mint NFT:', err);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const stakeNFT = async (nftId: string) => {
+    if (!connected) throw new Error('Wallet not connected');
+    
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      const tx = new Transaction();
+      
+      tx.moveCall({
+        target: `${PACKAGE_ID}::game::stake_nft`,
+        arguments: [
+          tx.object(nftId),
+          tx.object('0x6'), // Clock object
+        ],
+      });
+
+      const result = await executeTransaction(tx);
+      console.log('Stake result:', result);
+      await loadUserNFTs();
+    } catch (err: any) {
+      setError(err.message);
+      console.error('Failed to stake NFT:', err);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const unstakeNFT = async (nftId: string) => {
+    if (!connected) throw new Error('Wallet not connected');
+    
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      const tx = new Transaction();
+      
+      tx.moveCall({
+        target: `${PACKAGE_ID}::game::unstake_nft`,
+        arguments: [
+          tx.object(nftId),
+          tx.object('0x6'), // Clock object
+        ],
+      });
+
+      const result = await executeTransaction(tx);
+      console.log('Unstake result:', result);
+      await loadUserNFTs();
+    } catch (err: any) {
+      setError(err.message);
+      console.error('Failed to unstake NFT:', err);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const initiateBattle = async (nft1Id: string, nft2Id: string): Promise<string> => {
     if (!connected) throw new Error('Wallet not connected');
     
     try {
-      const txb = new TransactionBlock();
+      const tx = new Transaction();
       
-      // Call the mint_nft function in the smart contract
-      txb.moveCall({
-        target: `${GAME_PACKAGE_ID}::${GAME_MODULE}::mint_nft`,
+      tx.moveCall({
+        target: `${PACKAGE_ID}::game::initiate_battle`,
         arguments: [
-          txb.pure(Array.from(new TextEncoder().encode(name))),
-          txb.pure(Array.from(new TextEncoder().encode(description))),
-          txb.pure(Array.from(new TextEncoder().encode(imageUrl))),
-          txb.pure(rarity),
+          tx.object(nft1Id),
+          tx.object(nft2Id),
         ],
       });
-      
-      // Execute the transaction
-      const txDigest = await executeTransaction(txb);
-      
-      // Refresh NFTs after minting
+
+      const result = await executeTransaction(tx);
+      console.log('Battle result:', result);
       await loadUserNFTs();
-      
-      return txDigest;
-    } catch (error) {
-      console.error('Failed to mint NFT:', error);
-      throw error;
+      return result;
+    } catch (err: any) {
+      setError(err.message);
+      console.error('Failed to initiate battle:', err);
+      throw err;
     }
   };
 
   const value = {
     userNFTs,
-    allNFTs: [],
+    allNFTs: userNFTs,
     isLoading,
     mintNFT,
+    stakeNFT,
+    unstakeNFT,
+    error,
     selectedNFT,
     setSelectedNFT,
-    refreshNFTs: loadUserNFTs
+    refreshNFTs: loadUserNFTs,
+    initiateBattle,
+    getStakingRewards,
   };
 
   return (

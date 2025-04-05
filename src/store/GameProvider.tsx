@@ -4,7 +4,7 @@ import React, { createContext, useContext, useState, ReactNode, useEffect } from
 import { NFTAttributes } from '@/src/types/nft';
 import { useWalletContext } from '@/src/store/WalletProvider';
 import { useNFTs } from '@/src/store/NFTProvider';
-import { TransactionBlock } from '@mysten/sui.js/transactions';
+import { Transaction } from '@mysten/sui/transactions';
 import { GAME_PACKAGE_ID, GAME_MODULE } from '@/src/lib/sui/constants';
 import { BattleSystem } from '@/src/core/battle/BattleSystem';
 import { BattleResult } from '@/src/types/battle';
