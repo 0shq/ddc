@@ -1,9 +1,7 @@
 [package]
 name = "ddc"
 version = "0.1.0"
-
-[dependencies]
-Sui = { git = "https://github.com/MystenLabs/sui.git", subdir = "crates/sui-framework/packages/sui-framework", rev = "testnet" }
+edition = "2024"
 
 [addresses]
 ddc = "0x0"
