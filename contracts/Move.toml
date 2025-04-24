@@ -2,6 +2,7 @@
 name = "ddc"
 version = "0.1.0"
 edition = "2024"
+published-at = "0x83023f763b7aefa54e123f089bb13fcfa4820f60676e359990e6e56e3e875a3f"
 
 [addresses]
-ddc = "0x0"
+ddc = "0x0" 

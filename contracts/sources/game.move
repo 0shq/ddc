@@ -2,6 +2,8 @@ module ddc::game {
     use sui::coin::{Self, Coin};
     use sui::sui::SUI;
     use sui::balance::{Self, Balance};
+    use std::string;
+    use ddc::nft;
 
     // Error codes
     const EInsufficientFunds: u64 = 1;
@@ -31,6 +33,28 @@ module ddc::game {
         });
     }
 
+    public entry fun mint_character(
+        _admin: &AdminCap,
+        config: &mut GameConfig,
+        name: vector<u8>,
+        strength: u64,
+        agility: u64,
+        intelligence: u64,
+        stamina: u64,
+        ctx: &mut TxContext
+    ) {
+        let nft = nft::mint(
+            string::utf8(name),
+            strength,
+            agility,
+            intelligence,
+            stamina,
+            ctx
+        );
+        config.total_mints = config.total_mints + 1;
+        transfer::public_transfer(nft, tx_context::sender(ctx));
+    }
+
     public fun add_to_treasury(
         config: &mut GameConfig,
         payment: Coin<SUI>,
@@ -58,6 +82,11 @@ module ddc::game {
 
     public fun get_total_mints(config: &GameConfig): u64 {
         config.total_mints
+    }
+
+    #[test_only]
+    public fun init_for_testing(ctx: &mut TxContext) {
+        init(GAME {}, ctx)
     }
 
     #[test_only]
