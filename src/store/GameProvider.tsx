@@ -4,8 +4,6 @@ import React, { createContext, useContext, useState, ReactNode, useEffect } from
 import { NFTAttributes } from '@/src/types/nft';
 import { useWalletContext } from '@/src/store/WalletProvider';
 import { useNFTs } from '@/src/store/NFTProvider';
-import { Transaction } from '@mysten/sui/transactions';
-import { GAME_PACKAGE_ID, GAME_MODULE } from '@/src/lib/sui/constants';
 import { BattleSystem } from '@/src/core/battle/BattleSystem';
 import { BattleResult } from '@/src/types/battle';
 import { Storage } from '@/src/lib/storage';
@@ -44,7 +42,9 @@ const GameContext = createContext<GameContextType>({
         level: 1
       },
       imageUrl: '/images/nfts/default.png',
-      rarity: 'common'
+      rarity: 'common',
+      experience: 0,
+      level: 1
     },
     loser: opponentNFT,
     timestamp: Math.floor(Date.now() / 1000),

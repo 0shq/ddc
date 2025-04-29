@@ -1,6 +1,6 @@
 import { SuiClient, getFullnodeUrl } from '@mysten/sui/client';
 import { Transaction } from '@mysten/sui/transactions';
-import { PACKAGE_ID } from '../../config/contracts';
+import { PACKAGE_ID } from '@/src/lib/sui/constants';
 import { TextEncoder } from 'util';
 
 export class GameContract {

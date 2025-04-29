@@ -1,15 +1,11 @@
-// Sui package and module IDs
-export const GAME_PACKAGE_ID = '0xca1fa792ee2e7f88f35ce48c6fd9818c0ecbd660b5c9c01de87c1c602ca7aea7'; // Replace with actual package ID
-export const SUI_PACKAGE_ID = "0x2::sui";
-
 // Contract package ID
-export const PACKAGE_ID = "0xca1fa792ee2e7f88f35ce48c6fd9818c0ecbd660b5c9c01de87c1c602ca7aea7";
+export const PACKAGE_ID = "0xe50a63fcedff84294b9a88823680f10cffe6191ed40d4ee779978787828090ce";
 
 // Contract module names
 export const GAME_MODULE = "ddc::game";
 
-// Admin cap ID
-export const ADMIN_CAP_ID = "0xca1fa792ee2e7f88f35ce48c6fd9818c0ecbd660b5c9c01de87c1c602ca7aea7::admin::AdminCap"; // Replace with actual admin cap ID
+// Admin cap ID (UpgradeCap object, update if you have a specific AdminCap object)
+export const ADMIN_CAP_ID = "0x387910312b7a8f4bab004bf80f7aef3d08411c79034088ca7df108f836b96a39";
 
 // Event types
 export const EVENTS = {
